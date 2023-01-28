@@ -1,0 +1,30 @@
+# Hosts under "_slave" group will be configured as web servers
+- hosts: _slave
+  become: true
+  tasks:
+          - name: "install httpd software"
+            package:
+                    name: "httpd"
+                    state: present
+          - name: "install php software"
+            package:
+                    name: "php"          
+          - copy:
+                  dest: "/var/www/html/index.php"
+                  src: "index.php"
+          - service:
+                  name: "httpd"
+                  state: restarted
+# Hosts under "_master" group will be configured as HAProxy server.
+- hosts: _master
+  become: true
+  tasks:
+          - name: "install LoadBalancer Sofware"
+            package:
+                    name: "haproxy"
+          - template:
+                  dest: "/etc/haproxy/haproxy.cfg"
+                  src: "haproxy.cfg"
+          - service:
+                  name: "haproxy"
+                  state: restarted
